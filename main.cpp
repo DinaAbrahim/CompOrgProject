@@ -7,6 +7,10 @@ void reverse(va_list args);
 int is_smile(const char *ptr);
 void smile();
 void character(va_list args);
+void string(va_list args);
+
+int min(int length, int precision);
+
 
 // global variables
 bool left_justify = false;
@@ -15,6 +19,7 @@ bool space = false;
 bool zero = false;
 int width = -1;
 int precision = -1;
+
 
 void my_printf(const char *format, ...) {
     va_list args;  // declares a variable to hold the argument list
@@ -35,39 +40,49 @@ void my_printf(const char *format, ...) {
             zero = false;
             width = -1;
             precision = -1;
-
-            // while loop until d, x, c, s - make separate function
+            // while loop until d, x, c, s
             while (*ptr != 'd' && *ptr != 'x' && *ptr != 'c' && *ptr != 's') {
-                // switch
                 switch (*ptr) {
                     // case -
                     case '-': {
-                        // global variable left_justify = true
                         left_justify = true;
+                        break;
                     }
                     // case +
                     case '+': {
-                        // global variable sign = true
                         sign = true;
+                        break;
                     }
                     // case 0
                     case '0': {
-                        // global variable zero = true
                         zero = true;
+                        break;
                     }
                     // case space
                     case ' ': {
-                        // global variable space = true
                         space = true;
+                        break;
                     }
                     // case number --> width
                     case '1' ... '9': {
-                        width = *ptr - '0';
+                        width = 0;
+                        while (*ptr >= '1' && *ptr <= '9') {
+                            width += (*ptr - '0') + (10 * width);
+                            ++ptr;
+                        }
+                        --ptr;
+                        break;
                     }
                     // case .
                     case '.': {
                         ++ptr;
-                        precision = *ptr - '0';
+                        precision = 0;
+                        while (*ptr >= '1' && *ptr <= '9') {
+                            precision += (*ptr - '0') + (10 * precision);
+                            ++ptr;
+                        }
+                        --ptr;
+                        break;
                     }
                 }
                 // increment pointer
@@ -93,7 +108,7 @@ void my_printf(const char *format, ...) {
                 }
                 // %s --> string
                 case 's': {
-                    // string(args);
+                    string(args);
                     break;
                 }
                 // %b --> binary
@@ -123,6 +138,12 @@ void my_printf(const char *format, ...) {
 
 
 void decimal(va_list args, const char **format) {
+    const char *str = va_arg(args, const char *);  // get the string argument from the list
+    int length = 0;
+    // find the length of the string
+    while (str[length] != '\0') {
+        ++length;
+    }
 }
 
 
@@ -133,11 +154,128 @@ void hexadecimal(va_list args) {
 void character(va_list args) {
     int i = va_arg(args, int);
     char c = char(i);
-    putchar(c);
+    // add case when precision = 0
+    if (width > 1) {
+        int padding = width - 1;
+        if (left_justify) {
+            // put padding on right side of char
+            putchar(c);
+            for (int j = 0; j < padding; ++j) {
+                putchar(' ');
+            }
+        }
+        else {
+            // put padding on left side of char
+            for (int j = 0; j < padding; ++j) {
+                putchar(' ');
+            }
+            putchar(c);
+        }
+    }
+    else {
+        putchar(c);
+    }
 }
 
 
 void string(va_list args) {
+    const char *str = va_arg(args, const char *);  // get the string argument from the list
+    int length = 0;
+    // find the length of the string
+    while (str[length] != '\0') {
+        ++length;
+    }
+    if (left_justify) {
+        // case 5: left_justify, width = -1, precision = -1 --> left-aligned string with no width and no precision
+        if (width == -1 && precision == -1) {
+            while (*str != '\0') {
+                putchar(*str);
+                ++str;
+            }
+        }
+        // case 6: left_justify, width = -1, precision = number --> left-aligned string with no width, specified precision
+        else if (width == -1 && precision >= 0) {
+            int counter = precision;
+            while (*str != '\0' && counter > 0) {
+                putchar(*str);
+                ++str;
+                --counter;
+            }
+        }
+        // case 7: left_justify, width = number, precision = -1 --> left-aligned string with specified width, no precision
+        else if (width >= 0 && precision == -1) {
+            int padding = width - length;
+            while (*str != '\0') {
+                putchar(*str);
+                ++str;
+            }
+            for (int j = 0; j < padding; ++j) {
+                putchar(' ');
+            }
+        }
+        // case 8: left_justify, width = number, precision = number --> left-aligned string with specified width and precision
+        else if (width >= 0 && precision >= 0) {
+            int length = min(length, precision);
+            int padding = width - length;
+            int counter = length;
+            while (*str != '\0' && counter > 0) {
+                putchar(*str);
+                ++str;
+                --counter;
+            }
+            for (int j = 0; j < padding; ++j) {
+                putchar(' ');
+            }
+        }
+    }
+    else {
+        // case 1: no left_justify, width = -1, precision = -1 --> right-aligned string with no width and no precision
+        if (width == -1 && precision == -1) {
+            while (*str != '\0') {
+                putchar(*str);
+                ++str;
+            }
+        }
+        // case 2: no left_justify, width = -1, precision = number --> right-aligned string with no width, specified precision
+        else if (width == -1 && precision >= 0) {
+            int counter = precision;
+            while (*str != '\0' && counter > 0) {
+                putchar(*str);
+                ++str;
+                --counter;
+            }
+        }
+        // case 3: no left_justify, width = number, precision = -1 --> right-aligned string with specified width, no precision
+        else if (width >= 0 && precision == -1) {
+            int padding = width - length;
+            for (int j = 0; j < padding; ++j) {
+                putchar(' ');
+            }
+            while (*str != '\0') {
+                putchar(*str);
+                ++str;
+            }
+        }
+        // case 4: no left_justify, width = number, precision = number --> right-aligned string with specified width and precision
+        else if (width >= 0 && precision >= 0) {
+            int length = min(length, precision);
+            int padding = width - length;
+            for (int j = 0; j < padding; ++j) {
+                putchar(' ');
+            }
+            int counter = length;
+            while (*str != '\0' && counter > 0) {
+                putchar(*str);
+                ++str;
+                --counter;
+            }
+        }
+    }
+}
+
+
+int min(int x, int y) {
+    return x < y ? x:y;
 }
 
 
@@ -213,24 +351,5 @@ void smile() {
 
 
 int main() {
-    /*
-    my_printf("Hello! I am %b years old in binary.\n", 22);
-    my_printf(":smile:\n");
-    my_printf(" Hello, World! Here's a smile :smile: \n");
-    my_printf("My name backwards is %r\n", "Dina Abrahim");
-    */
-
-    my_printf("Character: %c\n", 's');
-
-
-    /*
-    std::cout << "Running tests..." << std::endl;
-    const char *test_str = ":smile:";
-    assert(is_smile(test_str) == 1);
-
-    std::cout << "Test 1 passed!" << std::endl;
-
-    // my_printf("Hello! My name is %s and I am %d years old.\n", "Dina", 22);
-     */
     return 0;
 }
