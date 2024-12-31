@@ -1,11 +1,20 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+void my_printf(const char *format, ...);
 void binary(va_list args);
 void reverse(va_list args);
 int is_smile(const char *ptr);
 void smile();
+void character(va_list args);
 
+// global variables
+bool left_justify = false;
+bool sign = false;
+bool space = false;
+bool zero = false;
+int width = -1;
+int precision = -1;
 
 void my_printf(const char *format, ...) {
     va_list args;  // declares a variable to hold the argument list
@@ -17,8 +26,54 @@ void my_printf(const char *format, ...) {
             smile();  // if yes --> output smiley face
             ptr += 7;  // update pointer
         }
-        else if (*ptr == '%') { // check if the current character is %. if yes --> format specifier
+        else if (*ptr == '%') { // check if the current character is %
             ++ptr;  // go to the next character
+            // reinitialize all global variables
+            left_justify = false;
+            sign = false;
+            space = false;
+            zero = false;
+            width = -1;
+            precision = -1;
+
+            // while loop until d, x, c, s - make separate function
+            while (*ptr != 'd' && *ptr != 'x' && *ptr != 'c' && *ptr != 's') {
+                // switch
+                switch (*ptr) {
+                    // case -
+                    case '-': {
+                        // global variable left_justify = true
+                        left_justify = true;
+                    }
+                    // case +
+                    case '+': {
+                        // global variable sign = true
+                        sign = true;
+                    }
+                    // case 0
+                    case '0': {
+                        // global variable zero = true
+                        zero = true;
+                    }
+                    // case space
+                    case ' ': {
+                        // global variable space = true
+                        space = true;
+                    }
+                    // case number --> width
+                    case '1' ... '9': {
+                        width = *ptr - '0';
+                    }
+                    // case .
+                    case '.': {
+                        ++ptr;
+                        precision = *ptr - '0';
+                    }
+                }
+                // increment pointer
+                ++ptr;
+            }
+
             // determine which format specifier it is and use the corresponding function
             switch (*ptr) {
                 // %d --> decimal
@@ -33,7 +88,7 @@ void my_printf(const char *format, ...) {
                 }
                 // %c --> character
                 case 'c': {
-                    // character(args);
+                    character(args);
                     break;
                 }
                 // %s --> string
@@ -67,33 +122,21 @@ void my_printf(const char *format, ...) {
 }
 
 
-// decimal modifiers - flags, width, precision
-    // Flags: +, -, 0, ' '
-    // Width: number
-    // Precision: .number
 void decimal(va_list args, const char **format) {
 }
 
 
-// hexadecimal modifiers - flags, width, precision
-    // Flags: +, -, 0, ' '
-    // Width: number
-    // Precision: .number
 void hexadecimal(va_list args) {
 }
 
 
-// character modifiers - flags, width
-    // Flags: -, 0
-    // Width: number
 void character(va_list args) {
+    int i = va_arg(args, int);
+    char c = char(i);
+    putchar(c);
 }
 
 
-// string modifiers - flags, width, precision
-    // Flags: -, 0
-    // Width: number
-    // Precision: .number
 void string(va_list args) {
 }
 
@@ -170,10 +213,24 @@ void smile() {
 
 
 int main() {
+    /*
     my_printf("Hello! I am %b years old in binary.\n", 22);
     my_printf(":smile:\n");
     my_printf(" Hello, World! Here's a smile :smile: \n");
     my_printf("My name backwards is %r\n", "Dina Abrahim");
+    */
+
+    my_printf("Character: %c\n", 's');
+
+
+    /*
+    std::cout << "Running tests..." << std::endl;
+    const char *test_str = ":smile:";
+    assert(is_smile(test_str) == 1);
+
+    std::cout << "Test 1 passed!" << std::endl;
+
     // my_printf("Hello! My name is %s and I am %d years old.\n", "Dina", 22);
+     */
     return 0;
 }
