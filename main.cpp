@@ -29,7 +29,7 @@ void my_printf(const char *format, ...) {
     while (*ptr) {
         if (is_smile(ptr)) {  // check if current substring matches ":smile:"
             smile();  // if yes --> output smiley face
-            ptr += 7;  // update pointer
+            ptr += 6;  // update pointer
         }
         else if (*ptr == '%') { // check if the current character is %
             ++ptr;  // go to the next character
@@ -41,7 +41,7 @@ void my_printf(const char *format, ...) {
             width = -1;
             precision = -1;
             // while loop until d, x, c, s
-            while (*ptr != 'd' && *ptr != 'x' && *ptr != 'c' && *ptr != 's') {
+            while (*ptr != 'd' && *ptr != 'x' && *ptr != 'c' && *ptr != 's' && *ptr != 'b' && *ptr != 'r') {
                 switch (*ptr) {
                     // case -
                     case '-': {
@@ -351,5 +351,13 @@ void smile() {
 
 
 int main() {
+    // extentions tests
+    my_printf("My age in binary is: %b\n", 22);
+    my_printf("My name backwards is %r\n", "Dina Abrahim");
+    my_printf("Smile :smile:\n");
+
+    my_printf("My name is %s.\n", "Dina Abrahim");
+    my_printf("My first initial is %c.\n", 'D');
+
     return 0;
 }
