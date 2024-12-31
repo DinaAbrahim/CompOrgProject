@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdarg.h>
-#include <time.h>
 
 void binary(va_list args);
 void reverse(va_list args);
@@ -11,76 +10,62 @@ void smile();
 void my_printf(const char *format, ...) {
     va_list args;  // declares a variable to hold the argument list
     va_start(args, format);  // initializes va_list with the last fixed argument (format)
-
     const char *ptr = format;  // pointer to traverse the string
-
     // loop through each character in the string
     while (*ptr) {
-
         if (is_smile(ptr)) {  // check if current substring matches ":smile:"
             smile();  // if yes --> output smiley face
             ptr += 7;  // update pointer
         }
-
         else if (*ptr == '%') { // check if the current character is %. if yes --> format specifier
             ++ptr;  // go to the next character
-
             // determine which format specifier it is and use the corresponding function
             switch (*ptr) {
-
                 // %d --> decimal
                 case 'd': {
                     // decimal(args);
                     break;
                 }
-
                 // %x --> hexadecimal
                 case 'x': {
                     // hexadecimal(args);
                     break;
                 }
-
                 // %c --> character
                 case 'c': {
                     // character(args);
                     break;
                 }
-
                 // %s --> string
                 case 's': {
                     // string(args);
                     break;
                 }
-
                 // %b --> binary
                 case 'b': {
                     binary(args);
                     break;
                 }
-
                 // %r --> reverse
                 case 'r': {
                     reverse(args);
                     break;
                 }
-
                 // if it is an undefined format specifier, print % and the next character
                 default:
                     putchar('%');
                     putchar(*ptr);
                     break;
             }
-
-
         // if the current character is not %, print it using putchar
         } else {
             putchar(*ptr);
         }
         ++ptr;  // go to the next character
     }
-
     va_end(args);  // cleans up memory used by va_list
 }
+
 
 // decimal modifiers - flags, width, precision
     // Flags: +, -, 0, ' '
@@ -113,7 +98,7 @@ void string(va_list args) {
 }
 
 
-// convert decimal to binary
+// extension 1: convert decimal to binary
 void binary(va_list args) {
     int num = va_arg(args, int);  // get integer from variable argument list
     // if num is 0, print '0'
@@ -144,7 +129,7 @@ void binary(va_list args) {
 }
 
 
-// reverses string
+// extension 2: reverses string
 void reverse(va_list args) {
     const char *str = va_arg(args, const char *);  // get the string argument from the list
     int length = 0;
@@ -159,7 +144,7 @@ void reverse(va_list args) {
 }
 
 
-// checks if the current substring matches ":smile:"
+// extension 3: checks if the current substring matches ":smile:"
 int is_smile(const char *ptr) {
     const char *smile_str = ":smile:";  // target string
     // loop through target string
@@ -174,7 +159,7 @@ int is_smile(const char *ptr) {
 }
 
 
-// outputs a smiley face
+// extension 3: outputs a smiley face
 void smile() {
     const char *text_smiley = ":)";  // smiley face string to output
     // loop through chars in string
@@ -189,7 +174,6 @@ int main() {
     my_printf(":smile:\n");
     my_printf(" Hello, World! Here's a smile :smile: \n");
     my_printf("My name backwards is %r\n", "Dina Abrahim");
-    // my_printf("The current date and time is %T.\n");
     // my_printf("Hello! My name is %s and I am %d years old.\n", "Dina", 22);
     return 0;
 }
